@@ -11,6 +11,7 @@ const _pollRate = 20 * time.Millisecond
 
 var _initialized    bool = false
 var _numFloors      int = 4
+var _numButtons		int  =3  //added for use in Elevator struct
 var _mtx            sync.Mutex
 var _conn           net.Conn
 
@@ -28,6 +29,14 @@ const (
 	BT_HallUp   ButtonType = 0
 	BT_HallDown            = 1
 	BT_Cab                 = 2
+)
+
+type ElevatorBehavior int
+
+const (
+	M_Moving  ElevatorBehavior    = 1	//added for use in Elevator struct
+	M_Idle      				  = 0
+	M_DoorOpen    				  = 2
 )
 
 type ButtonEvent struct {
@@ -62,7 +71,7 @@ func SetButtonLamp(button ButtonType, floor int, value bool) {
 	write([4]byte{2, byte(button), byte(floor), toByte(value)})
 }
 
-func SetFloorIndicator(floor int) {
+func SetFloorIndicator(floorfor floor := 0; floor < numFloors;floor++{ int) {
 	write([4]byte{3, byte(floor), 0, 0})
 }
 
@@ -94,7 +103,7 @@ func PollButtons(receiver chan<- ButtonEvent) {
 
 func PollFloorSensor(receiver chan<- int) {
 	prev := -1
-	for {
+	for {for floor := 0; floor < numFloors;floor++{
 		time.Sleep(_pollRate)
 		v := GetFloor()
 		if v != prev && v != -1 {
